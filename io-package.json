@@ -56,7 +56,10 @@
 		"extIcon": "https://raw.githubusercontent.com/fusenigk/ioBroker.thermiq/master/admin/thermiq.png",
 		"readme": "https://github.com/fusenigk/ioBroker.thermiq/blob/master/README.md",
 		"loglevel": "info",
-		"mode": "daemon",
+		
+		"mode": "schedule",
+        "schedule": "*/1 * * * *",
+
 		"type": "climate-control",
 		"compact": true,
 		"materialize": true,

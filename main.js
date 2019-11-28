@@ -7,6 +7,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
+const request = require('request');
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
@@ -21,6 +22,7 @@ class Thermiq extends utils.Adapter {
 			...options,
 			name: "thermiq",
 		});
+
 		this.on("ready", this.onReady.bind(this));
 		this.on("objectChange", this.onObjectChange.bind(this));
 		this.on("stateChange", this.onStateChange.bind(this));
@@ -36,49 +38,81 @@ class Thermiq extends utils.Adapter {
 
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
-		this.log.info("config option1: " + this.config.option1);
-		this.log.info("config option2: " + this.config.option2);
+		this.log.info("thermiq ip: " + this.config.thermiqip);
 
 		/*
 		For every state in the system there has to be also an object of type state
 		Here a simple template for a boolean variable named "testVariable"
 		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
 		*/
-		await this.setObjectAsync("testVariable", {
-			type: "state",
-			common: {
-				name: "testVariable",
-				type: "boolean",
-				role: "indicator",
-				read: true,
-				write: true,
-			},
-			native: {},
-		});
+		// await this.setObjectAsync("testVariable", {
+		// 	type: "state",
+		// 	common: {
+		// 		name: "testVariable",
+		// 		type: "boolean",
+		// 		role: "indicator",
+		// 		read: true,
+		// 		write: true,
+		// 	},
+		// 	native: {},
+		// });
 
 		// in this template all states changes inside the adapters namespace are subscribed
 		this.subscribeStates("*");
 
-		/*
-		setState examples
-		you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-		*/
-		// the variable testVariable is set to true as command (ack=false)
-		await this.setStateAsync("testVariable", true);
+		request(
+                    {
+                        url: 'http://' + this.config.thermiqip + '/jquery_server.php?db_query=select+HP_THERMIA_REGS.REGNAME%2CHP_THERMIA_REGS.REGNUM%2CTIME%2CREGVALUE+from+HP_THERMIA_REGS%2CHP_POLLDATA+where+(HP_THERMIA_REGS.regnum%3DHP_POLLDATA.regnum)&db_name=thermiq_db',
+                        json: true,
+                        time: true,
+                        timeout: 4500
+                    },
+                    
+                    (error, response, content) => {
+                        //this.log.info('local http request done');
 
-		// same thing, but the value is flagged "ack"
-		// ack should be always set to true if the value is received from or acknowledged from the target system
-		await this.setStateAsync("testVariable", { val: true, ack: true });
+                        if (response) {
+                        	const self = this;
+                        	//this.log.info('received data (' + response.statusCode + '): ' +  JSON.stringify(content));
 
-		// same thing, but the state is deleted after 30s (getState will return null afterwards)
-		await this.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
+                        	if (content && Array.isArray(content) ) {
+                        		this.log.info('content is array') ;
+                        	
+                        		  const sensorData = content[0];
+ 								  //this.log.info('array2: ' + content.length);
+                        		  //this.log.info('received data:' + sensorData );
 
-		// examples for the checkPassword/checkGroup functions
-		let result = await this.checkPasswordAsync("admin", "iobroker");
-		this.log.info("check user admin pw ioboker: " + result);
+								  content.forEach(function (arrayItem) {
+    							     //self.log.info(arrayItem.REGNAME + ': ' + arrayItem.REGVALUE) ;
+    							     
+    							        self.setObjectNotExists(arrayItem.REGNAME, {
+					                                            type: 'state',
+					                                            common: {
+					                                                name: arrayItem.REGNAME,
+					                                                type: 'number',
+					                                                role: 'value',
+					                                                unit: '',
+					                                                read: true,
+					                                                write: false
+					                                            },
+					                                            native: {}
+					                                        });
 
-		result = await this.checkGroupAsync("admin", "admin");
-		this.log.info("check group user admin group admin: " + result);
+					        			self.setState(arrayItem.REGNAME, {val: parseInt(arrayItem.REGVALUE), ack: true});
+								  });
+
+                        	}
+
+ 						} else if (error) {
+                            this.log.info(error);
+                        }
+                    }
+                );
+
+		// in this template all states changes inside the adapters namespace are subscribed
+		this.subscribeStates("*");
+		
+		setTimeout(this.stop.bind(this), 10000);
 	}
 
 	/**
