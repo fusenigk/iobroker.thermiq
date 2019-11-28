@@ -1,0 +1,75 @@
+{
+	"common": {
+		"name": "thermiq",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
+			}
+		},
+		"title": "thermiq",
+		"titleLang": {
+			"en": "thermiq",
+			"de": "thermiq",
+			"ru": "thermiq",
+			"pt": "thermiq",
+			"nl": "thermiq",
+			"fr": "thermiq",
+			"it": "thermiq",
+			"es": "thermiq",
+			"pl": "Thermiq",
+			"zh-cn": "特米克"
+		},
+		"desc": {
+			"en": "thermiq heater adapter",
+			"de": "thermiq Heizungsadapter",
+			"ru": "адаптер нагревателя Thermiq",
+			"pt": "adaptador de aquecedor thermiq",
+			"nl": "thermiq verwarmingsadapter",
+			"fr": "adaptateur de chauffage thermiq",
+			"it": "adattatore per riscaldatore thermiq",
+			"es": "adaptador de calentador thermiq",
+			"pl": "adapter grzejnika thermiq",
+			"zh-cn": "Thermiq加热器适配器"
+		},
+		"authors": [
+			"fusenigk <public@fsng.de>"
+		],
+		"keywords": [
+			"heater",
+			"thermiq"
+		],
+		"license": "MIT",
+		"platform": "Javascript/Node.js",
+		"main": "main.js",
+		"icon": "thermiq.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/fusenigk/ioBroker.thermiq/master/admin/thermiq.png",
+		"readme": "https://github.com/fusenigk/ioBroker.thermiq/blob/master/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "climate-control",
+		"compact": true,
+		"materialize": true,
+		"dependencies": [
+			{
+				"js-controller": ">=1.4.2"
+			}
+		]
+	},
+	"native": {
+		"option1": true,
+		"option2": "42"
+	},
+	"objects": [],
+	"instanceObjects": []
+}
